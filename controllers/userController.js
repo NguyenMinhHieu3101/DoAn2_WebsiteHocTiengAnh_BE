@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/userModel")
 const Course = require("../models/courseModel")
 const UserCourse = require("../models/userCourseModel")
+const HistoryCourse = require("../models/studyHistoryModel")
 const path = require('path');
 
 //@desc Register a user
@@ -155,7 +156,6 @@ const getContinueCourses = async (req, res) => {
     const courses_name = filteredCourses.map((course) => course.course);
     const courses = await Course.find({ name: { $in: courses_name } });
 
-
     res.json(courses);
     return courses;
   } catch (error) {
@@ -163,4 +163,33 @@ const getContinueCourses = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
-module.exports = { registerUser, loginUser, currentUser, changeInfo, getUserCourse, saveUserCourse, getContinueCourses, changePassword }
+
+const getHistoryCourses = async (req, res) => {
+  try {
+    console.log(req.query.user)
+    const historyCourses = await HistoryCourse.find();
+    res.json(historyCourses);
+    return historyCourses;
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+const saveHistoryCourses = async (req, res) => {
+  const { user, course,status } = req.body;
+  try {
+      const newHistoryCourse = await HistoryCourse.create({ user, course, status });
+    
+      res.json(newHistoryCourse);
+      console.log(`History Course Created: ${newHistoryCourse}`);
+      return newHistoryCourse;
+
+  } catch (error) {
+    console.log('Error:', error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+module.exports = { registerUser, loginUser, currentUser, changeInfo, 
+  getUserCourse, saveUserCourse, getContinueCourses, changePassword,
+  getHistoryCourses, saveHistoryCourses}

@@ -5,14 +5,15 @@ const Category = require("../models/categoryModel");
 const User = require("../models/userModel");
 
 const createPost = async (req, res) => {
-  const { title, description, numViews, likes, dislikes, photo } = req.body;
+  const { title, description, photo, user } = req.body;
   const newPost = new Post({
     title,
     description,
-    numViews,
-    likes,
-    dislikes,
+    // numViews,
+    // likes,
+    // dislikes,
     photo,
+    user
   });
   try {
     const savedPost = await newPost.save();
@@ -32,45 +33,53 @@ const getPost = async (req, res) => {
 };
 
 const getPosts = async (req, res) => {
-    try {
-      const posts = await Post.find({});
-      const customedPosts = await Promise.all(
-        posts.map(async (post) => {
-          const user = await User.findById(post.user);
-  
-         const comments = await Comment.find({ post: post._id.toString() });
-  
-          const formattedComments = await Promise.all(
-            comments.map(async (comment) => {
-              const commenter = await User.findById(comment.user);
-              return {
-                comment_id: comment._id.toString(),
-                comment_time: moment(comment.createdAt).format('DD/MM/YYYY HH:mm'),
-                comment_content: comment.content || '',
-                commenter_name: commenter ? commenter.name : null,
-                commenter_img: commenter ? commenter.image : null,
-              };
-            })
-          );
-  
-          return {
-            post_id: post._id.toString(),
-            post_content: post.description,
-            post_time: moment(post.createdAt).format('DD/MM/YYYY HH:mm'),
-            post_image: post.photo,
-            author_name: user ? user.name : null,
-            author_img: user ? user.image : null,
-            comments: formattedComments,
-          };
-        })
-      );
-  
-      res.status(200).json(customedPosts);
-    } catch (err) {
-      res.status(500).json(err);
-    }
-  };
-  
+  try {
+    // Lấy tất cả bài viết từ cơ sở dữ liệu
+    const posts = await Post.find({});
+    posts.sort((a, b) => b._id.getTimestamp() - a._id.getTimestamp());
+console.log(posts);
+    // Sắp xếp bài viết theo thời gian tạo giảm dần (mới nhất lên trên)
+   
+    // Tạo mảng chứa các bài viết đã được định dạng lại
+    const customedPosts = await Promise.all(
+      posts.map(async (post) => {
+        const user = await User.findById(post.user);
+
+        const comments = await Comment.find({ post: post._id.toString() });
+
+        const formattedComments = await Promise.all(
+          comments.map(async (comment) => {
+            const commenter = await User.findById(comment.user);
+            return {
+              comment_id: comment._id.toString(),
+              comment_time: moment(comment.createdAt).format('DD/MM/YYYY HH:mm'),
+              comment_content: comment.content || '',
+              commenter_name: commenter ? commenter.name : null,
+              commenter_img: commenter ? commenter.image : null,
+            };
+          })
+        );
+
+        return {
+          post_id: post._id.toString(),
+          post_title: post.title,
+          post_content: post.description,
+          post_time: moment(post.createdAt).format('DD/MM/YYYY HH:mm'),
+          post_image: post.photo,
+          author_name: user ? user.name : null,
+          author_img: user ? user.image : null,
+          comments: formattedComments,
+        };
+      })
+    );
+ 
+
+    // Trả về danh sách bài viết đã được sắp xếp
+    res.status(200).json(customedPosts);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
 
 const deletePost = async (req, res) => {
   try {

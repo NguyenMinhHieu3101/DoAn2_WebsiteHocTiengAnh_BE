@@ -177,9 +177,9 @@ const getHistoryCourses = async (req, res) => {
 };
 
 const saveHistoryCourses = async (req, res) => {
-  const { user, course,status } = req.body;
+  const { user, course,lessonType,status } = req.body;
   try {
-      const newHistoryCourse = await HistoryCourse.create({ user, course, status });
+      const newHistoryCourse = await HistoryCourse.create({ user, course,lessonType, status });
     
       res.json(newHistoryCourse);
       console.log(`History Course Created: ${newHistoryCourse}`);

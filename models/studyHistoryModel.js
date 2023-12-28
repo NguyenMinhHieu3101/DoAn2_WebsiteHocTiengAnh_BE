@@ -9,6 +9,10 @@ const studyHistorySchema = mongoose.Schema({
         type: String,
         required: true,
     },
+    lessonType:{
+        type: String,
+        required: true,
+    },
     status: {
         type: String,
         required: true,

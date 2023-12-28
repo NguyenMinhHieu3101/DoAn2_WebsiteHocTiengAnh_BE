@@ -1,7 +1,7 @@
 const express = require("express");
 const {createPost, getPost, getPosts, deletePost, updatePost,
     createComment, getComment, deleteComment, updateComment,
-    createCategory, getCategory, deleteCategory, updateCategory
+    createCategory, getCategory, deleteCategory, updateCategory,getComments
    } = require("../controllers/blogController");
 
 const router = express.Router();
@@ -15,6 +15,7 @@ router.put("/posts/:id",updatePost)
 
 router.post("/comments", createComment)
 router.get("/comments/:id",getComment)
+router.get("/comments",getComments)
 router.delete("/comments/:id",deleteComment)
 router.put("/comments/:id",updateComment)
 

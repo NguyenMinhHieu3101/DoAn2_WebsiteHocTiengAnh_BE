@@ -114,7 +114,14 @@ const createComment = async (req, res) => {
     res.status(500).json(err);
   }
 };
-
+const getComments = async (req, res) => {
+  try {
+    const comments = await Comment.find({});
+    res.status(200).json(comments);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+}
 const getComment = async (req, res) => {
   try {
     const comment = await Comment.findById(req.params.id);
@@ -199,6 +206,7 @@ module.exports = {
   updatePost,
   createComment,
   getComment,
+  getComments,
   deleteComment,
   updateComment,
   createCategory,

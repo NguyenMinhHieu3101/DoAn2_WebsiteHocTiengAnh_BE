@@ -1,22 +1,23 @@
-const asyncHandler = require("express-async-handler")
+const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const User = require("../models/userModel")
-const Course = require("../models/courseModel")
-const UserCourse = require("../models/userCourseModel")
-const HistoryCourse = require("../models/studyHistoryModel")
-const path = require('path');
+const User = require("../models/userModel");
+const Course = require("../models/courseModel");
+const UserCourse = require("../models/userCourseModel");
+const HistoryCourse = require("../models/studyHistoryModel");
+const path = require("path");
 
 //@desc Register a user
 //@route POST/api/users/register
 //@access public
 const registerUser = asyncHandler(async (req, res) => {
-  const { username, email, password, name, dateofbirth } = req.body;
+  const { username, email, password, name, dateofbirth, image, role } =
+    req.body;
   if (!username || !email || !password) {
     res.status(400);
     throw new Error("All fields are mandatory!");
   }
-  const userAvailable = await User.findOne({ email })
+  const userAvailable = await User.findOne({ email });
   if (userAvailable) {
     res.status(400);
     throw new Error("User already registered!");
@@ -30,18 +31,19 @@ const registerUser = asyncHandler(async (req, res) => {
     email,
     password, // password: hashedPassword,
     name,
-    dateofbirth
-  })
-  console.log(`User Created ${user}`)
+    dateofbirth,
+    image,
+    role,
+  });
+  console.log(`User Created ${user}`);
   if (user) {
     res.status(201).json({ _id: user.id, email: user.email });
-
   } else {
     res.status(400);
-    throw new Error("User data is invalid")
+    throw new Error("User data is invalid");
   }
 
-  res.json({ message: "Register the user" })
+  res.json({ message: "Register the user" });
 });
 
 //@desc Login user
@@ -54,11 +56,11 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new Error("All fields are mandatory!");
   }
   const user = await User.findOne({ email, password });
-  console.log(user)
+  console.log(user);
   if (user) {
     res.json({ user });
   } else {
-    res.status(404).json({ error: 'User not found' });
+    res.status(404).json({ error: "User not found" });
   }
   // if (user && (await bcrypt.compare(password, user.password))) {
   //     const accessToken = jwt.sign({
@@ -75,7 +77,6 @@ const loginUser = asyncHandler(async (req, res) => {
 
   //     res.status(200).json({ user })
 
-
   // } else {
   //     res.status(401)
   //     throw new Error("email or password is not valid");
@@ -86,43 +87,56 @@ const loginUser = asyncHandler(async (req, res) => {
 //@route POST/api/users/current
 //@access private
 const currentUser = asyncHandler((req, res) => {
-  res.json(req.user)
+  res.json(req.user);
 });
+
+const getManagers = asyncHandler(async (req, res) => {
+  const user = await User.find({ role: "manager" });
+  if (user) {
+    res.status(200).json(user);
+  } else {
+    res.status(404).json({ message: "User not found" });
+  }
+});
+
 //@desc Current user info
 //@route PUT/api/users/changeInfo
 //@access public
 const changeInfo = async (req, res) => {
   const updatedUser = req.body;
-  console.log(req.body)
-  const user = await User.findByIdAndUpdate({_id: req.body._id, password : req.body.password}, updatedUser, { new: true });
+  console.log(req.body);
+  const user = await User.findByIdAndUpdate(
+    { _id: req.body._id, password: req.body.password },
+    updatedUser,
+    { new: true }
+  );
   if (user) {
     res.status(200).json({ user });
-  } else { 
+  } else {
     res.status(404).json({ message: "User not found" });
   }
-
 };
 const changePassword = async (req, res) => {
   const updatedPassword = req.body;
   const user_full = await User.findOne({ email: updatedPassword.email });
   const id_user = user_full._id;
 
-
-  const user = await User.findByIdAndUpdate(id_user, updatedPassword, { new: true });
+  const user = await User.findByIdAndUpdate(id_user, updatedPassword, {
+    new: true,
+  });
   if (user) {
     res.status(200).json({ user });
   } else {
     res.status(404).json({ message: "User not found" });
   }
   console.log(user);
-
 };
 
 const getUserCourse = async (req, res) => {
   const users_courses = await UserCourse.find();
   res.json(users_courses);
   return users_courses;
-}
+};
 const saveUserCourse = async (req, res) => {
   const { user, course } = req.body;
   try {
@@ -137,59 +151,74 @@ const saveUserCourse = async (req, res) => {
       res.json(newUserCourse);
       console.log(`User Course Created: ${newUserCourse}`);
       return newUserCourse;
-    }
-    else {
+    } else {
       // If userCourse exists, you can handle the scenario accordingly
     }
   } catch (error) {
-    console.log('Error:', error);
+    console.log("Error:", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
 const getContinueCourses = async (req, res) => {
   try {
-    console.log(req.query.user)
+    console.log(req.query.user);
     const continueCourses = await UserCourse.find();
 
-    const filteredCourses = continueCourses.filter((course) => course.user == req.query.user);
+    const filteredCourses = continueCourses.filter(
+      (course) => course.user == req.query.user
+    );
     const courses_name = filteredCourses.map((course) => course.course);
     const courses = await Course.find({ name: { $in: courses_name } });
 
     res.json(courses);
     return courses;
   } catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error("Error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
 const getHistoryCourses = async (req, res) => {
   try {
-    console.log(req.query.user)
+    console.log(req.query.user);
     const historyCourses = await HistoryCourse.find();
     res.json(historyCourses);
     return historyCourses;
   } catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error("Error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
 const saveHistoryCourses = async (req, res) => {
-  const { user, course,lessonType,status } = req.body;
+  const { user, course, lessonType, status } = req.body;
   try {
-      const newHistoryCourse = await HistoryCourse.create({ user, course,lessonType, status });
-    
-      res.json(newHistoryCourse);
-      console.log(`History Course Created: ${newHistoryCourse}`);
-      return newHistoryCourse;
+    const newHistoryCourse = await HistoryCourse.create({
+      user,
+      course,
+      lessonType,
+      status,
+    });
 
+    res.json(newHistoryCourse);
+    console.log(`History Course Created: ${newHistoryCourse}`);
+    return newHistoryCourse;
   } catch (error) {
-    console.log('Error:', error);
+    console.log("Error:", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
-module.exports = { registerUser, loginUser, currentUser, changeInfo, 
-  getUserCourse, saveUserCourse, getContinueCourses, changePassword,
-  getHistoryCourses, saveHistoryCourses}
+module.exports = {
+  registerUser,
+  loginUser,
+  currentUser,
+  changeInfo,
+  getUserCourse,
+  saveUserCourse,
+  getContinueCourses,
+  changePassword,
+  getHistoryCourses,
+  saveHistoryCourses,
+  getManagers,
+};

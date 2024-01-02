@@ -25,42 +25,42 @@ const userSchema = mongoose.Schema({
         type:String,
         require: [true, "Please add the date of birth"],
     },
-    postCount:{
-        type: Number,
-        default: 0
-    },
-    isBlocked:{
-        type: Boolean,
-        default: false
-    },
-    isAdmin:{
-        type: Boolean,
-        default: false
-    },
+    // postCount:{
+    //     type: Number,
+    //     default: 0
+    // },
+    // isBlocked:{
+    //     type: Boolean,
+    //     default: false
+    // },
+    // isAdmin:{
+    //     type: Boolean,
+    //     default: false
+    // },
     role:{
         type: String,
-        enum: ["Admin","Guest", "Editor"]
+        enum: ["admin","user", "manager", "create"],
     },
-    viewedBy: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-    }],
-    followers: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-    }],
-    following: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-    }],
-    active:{
-        type: Boolean,
-        default: true,
-    },
-    posts: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Post",
-    }]
+    // viewedBy: [{
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: "User",
+    // }],
+    // followers: [{
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: "User",
+    // }],
+    // following: [{
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: "User",
+    // }],
+    // active:{
+    //     type: Boolean,
+    //     default: true,
+    // },
+    // posts: [{
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: "Post",
+    // }]
 },{
     timestamps: true,
 });

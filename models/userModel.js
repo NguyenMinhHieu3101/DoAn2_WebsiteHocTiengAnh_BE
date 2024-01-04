@@ -1,29 +1,30 @@
-const mongoose = require("mongoose")
-const userSchema = mongoose.Schema({
+const mongoose = require("mongoose");
+const userSchema = mongoose.Schema(
+  {
     username: {
-        type:String,
-        require: [true, "Please add the user name"],
+      type: String,
+      require: [true, "Please add the user name"],
     },
-    email:{
-        type: String,
-        required:[true, "Please add the user email address"],
-        unique:[true, "Email address already taken"],
+    email: {
+      type: String,
+      required: [true, "Please add the user email address"],
+      unique: [true, "Email address already taken"],
     },
-    password:{
-        type: String,
-        required: [true, "Please add the user password"]
+    password: {
+      type: String,
+      required: [true, "Please add the user password"],
     },
-    image:{
-        type: String,
-        required: false
+    image: {
+      type: String,
+      required: false,
     },
     name: {
-        type:String,
-        require: [true, "Please add the name"],
+      type: String,
+      require: [true, "Please add the name"],
     },
     dateofbirth: {
-        type:String,
-        require: [true, "Please add the date of birth"],
+      type: String,
+      require: [true, "Please add the date of birth"],
     },
     // postCount:{
     //     type: Number,
@@ -37,9 +38,14 @@ const userSchema = mongoose.Schema({
     //     type: Boolean,
     //     default: false
     // },
-    role:{
-        type: String,
-        enum: ["admin","user", "manager", "create"],
+    role: {
+      type: String,
+      enum: ["admin", "user", "manager", "create"],
+    },
+    level: {
+      type: String,
+      enum: ["0", "1", "2", "3", "4", "5"],
+      default: "0",
     },
     // viewedBy: [{
     //     type: mongoose.Schema.Types.ObjectId,
@@ -61,7 +67,9 @@ const userSchema = mongoose.Schema({
     //     type: mongoose.Schema.Types.ObjectId,
     //     ref: "Post",
     // }]
-},{
+  },
+  {
     timestamps: true,
-});
+  }
+);
 module.exports = mongoose.model("User", userSchema);

@@ -1,5 +1,5 @@
 const Post = require("../models/postModel");
-const moment = require('moment');
+const moment = require("moment");
 const Comment = require("../models/commentModel");
 const Category = require("../models/categoryModel");
 const User = require("../models/userModel");
@@ -13,7 +13,7 @@ const createPost = async (req, res) => {
     // likes,
     // dislikes,
     photo,
-    user
+    user,
   });
   try {
     const savedPost = await newPost.save();
@@ -37,9 +37,9 @@ const getPosts = async (req, res) => {
     // Lấy tất cả bài viết từ cơ sở dữ liệu
     const posts = await Post.find({});
     posts.sort((a, b) => b._id.getTimestamp() - a._id.getTimestamp());
-console.log(posts);
+    console.log(posts);
     // Sắp xếp bài viết theo thời gian tạo giảm dần (mới nhất lên trên)
-   
+
     // Tạo mảng chứa các bài viết đã được định dạng lại
     const customedPosts = await Promise.all(
       posts.map(async (post) => {
@@ -52,8 +52,11 @@ console.log(posts);
             const commenter = await User.findById(comment.user);
             return {
               comment_id: comment._id.toString(),
-              comment_time: moment(comment.createdAt).format('DD/MM/YYYY HH:mm'),
-              comment_content: comment.content || '',
+              comment_time: moment(comment.createdAt).format(
+                "DD/MM/YYYY HH:mm"
+              ),
+              comment_content: comment.content || "",
+              commenter_id: comment.user,
               commenter_name: commenter ? commenter.name : null,
               commenter_img: commenter ? commenter.image : null,
             };
@@ -64,15 +67,15 @@ console.log(posts);
           post_id: post._id.toString(),
           post_title: post.title,
           post_content: post.description,
-          post_time: moment(post.createdAt).format('DD/MM/YYYY HH:mm'),
+          post_time: moment(post.createdAt).format("DD/MM/YYYY HH:mm"),
           post_image: post.photo,
+          author_id: post.user.toString(),
           author_name: user ? user.name : null,
           author_img: user ? user.image : null,
           comments: formattedComments,
         };
       })
     );
- 
 
     // Trả về danh sách bài viết đã được sắp xếp
     res.status(200).json(customedPosts);
@@ -121,7 +124,7 @@ const getComments = async (req, res) => {
   } catch (err) {
     res.status(500).json(err);
   }
-}
+};
 const getComment = async (req, res) => {
   try {
     const comment = await Comment.findById(req.params.id);

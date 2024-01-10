@@ -86,23 +86,39 @@ const saveCourseApprove = async (req, res) => {
   }
 };
 const saveVocabularyApprove = async (req, res) => {
-  console.log("Thêm được từ rồi nè. ", req.body.topicName, "hihihi");
-  const vocabSave = await vocabModel.find({
-    topic: req.body.topicName,
-  });
-  console.log(vocabSave);
-  const vocabApprove = await vocabApproveModel.create(
-    vocabSave.map((item) => ({
+  try {
+    // Find vocabularies
+    const vocabSave = await vocabModel.find({
+      topic: { $regex: req.body.topicName, $options: "i" },
+    });
+    console.log(vocabSave, "Tới đây nha");
+
+    // Handle empty result
+    if (vocabSave.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No vocabularies found for the specified topic." });
+    }
+
+    // Create approved vocabularies
+    const vocabApproveItems = vocabSave.map((item) => ({
       topic: req.body.topicName,
       sound: item.sound,
       image: item.image,
       name: item.name,
       meaning: item.meaning,
-    }))
-  );
-  const vocabDelete = await vocabModel.deleteMany({
-    topic: req.body.topicName,
-  });
+    }));
+
+    const vocabApprove = await vocabApproveModel.create(vocabApproveItems);
+
+    console.log(`Added approved vocabularies for topic: ${req.body.topicName}`);
+    res
+      .status(201)
+      .json({ message: "Approved vocabularies added successfully." });
+  } catch (error) {
+    console.error("Error in saveVocabularyApprove:", error);
+    res.status(500).json({ error: "Internal Server Error." });
+  }
 };
 module.exports = {
   createCourse,

@@ -2,6 +2,7 @@ const User = require("../models/userModel");
 const path = require("path");
 const vocabularyModel = require("../models/vocabularyModel");
 const LevelWord = require("../models/levelWordModel");
+const vocabularyCensorModel = require("../models/vocabularyCensorModel");
 
 //@desc GetVocabulary
 //@route POST/api/users/current
@@ -9,7 +10,8 @@ const LevelWord = require("../models/levelWordModel");
 const getVocab = async (req, res) => {
   const topic = req.body.topic;
   const vocab = await vocabularyModel.find({ topic });
-  res.json(vocab);
+  const vocabCensor = await vocabularyCensorModel.find({ topic });
+  res.json(vocab.concat(vocabCensor));
   return vocab;
 };
 

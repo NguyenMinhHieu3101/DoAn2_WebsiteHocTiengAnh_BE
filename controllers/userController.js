@@ -182,7 +182,7 @@ const getContinueCourses = async (req, res) => {
 const getHistoryCourses = async (req, res) => {
   try {
     console.log(req.query.user);
-    const historyCourses = await HistoryCourse.find();
+    const historyCourses = await HistoryCourse.find({ user: req.query.user });
     res.json(historyCourses);
     return historyCourses;
   } catch (error) {

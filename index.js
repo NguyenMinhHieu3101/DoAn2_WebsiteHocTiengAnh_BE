@@ -40,6 +40,7 @@ app.use("/api/courses", require("./routes/courseRoutes"));
 app.use("/api/games", require("./routes/gameRoutes"));
 app.use("/api/contact", require("./routes/contact1Routes"));
 app.use("/api/blog", require("./routes/blogRoutes"));
+app.use("/api/censor", require("./routes/censorRoutes"));
 app.use(errorHandler);
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
